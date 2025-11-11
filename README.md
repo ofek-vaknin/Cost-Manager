@@ -43,5 +43,5 @@ All data is stored locally, so your information remains available even after pag
 
 Below is an example of the Charts Overview page showing a Pie and Bar chart:
 
-![Charts Overview Screenshot](public/screenshots/charts-overview.png)
+![Charts Overview Screenshot](https://github.com/ofek-vaknin/Cost-Manager/blob/master/public/screenshots/Cost%20Manager.png))
 
