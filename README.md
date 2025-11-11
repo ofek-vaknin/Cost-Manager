@@ -39,5 +39,9 @@ All data is stored locally, so your information remains available even after pag
 - **LocalStorage** – save last report state  
 
 ---
+## 📊 Charts Overview
 
+Below is an example of the Charts Overview page showing a Pie and Bar chart:
+
+![Charts Overview Screenshot](public/screenshots/charts-overview.png)
 
