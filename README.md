@@ -29,5 +29,15 @@ All data is stored locally, so your information remains available even after pag
 
 ---
 
-## 🧩 Project Structure
+## ⚙️ Technologies Used
+
+- **React 18** + **Vite**
+- **Material UI (MUI)** – modern UI components  
+- **IndexedDB API** – client-side database  
+- **Recharts** – charts and visualizations  
+- **JavaScript (ES6+)**
+- **LocalStorage** – save last report state  
+
+---
+
 
