@@ -15,12 +15,13 @@ import { getReport } from '../services/idb.module.js';
  * ------------------------------------------------------
  * Displays the report controls (year/month/currency) and the results table.
  *
- * @param {Object}   report   - Current report object (from parent state).
+ * @param {Object}   report    - Current report object (from parent state).
  * @param {Function} setReport - Setter function for updating report state.
- * @param {string}   error    - Error message if report building failed.
- * @param {Function} setError - Setter function for updating error state.
+ * @param {string}   error     - Error message if report building failed.
+ * @param {Function} setError  - Setter function for updating error state.
  * @returns {JSX.Element} - The report view component.
  */
+// Destructuring Object
 export default function ReportView({ report, setReport, error, setError }) {
 
     /* ---------------- Load last report from localStorage ---------------- */
@@ -41,9 +42,14 @@ export default function ReportView({ report, setReport, error, setError }) {
     const handleReport = async ({ year, month, currency }) => {
         setError?.('');
         try {
-            const rep = await getReport(year, month, currency);   // Fetch report
-            setReport(rep);                                       // Save in state
-            localStorage.setItem('lastReport', JSON.stringify(rep)); // Persist to localStorage
+            // Fetch report
+            const rep = await getReport(year, month, currency);
+
+            // Save in state
+            setReport(rep);
+
+            // Persist to localStorage
+            localStorage.setItem('lastReport', JSON.stringify(rep));
         } catch (e) {
             setError?.(e.message || 'Failed to build report');
         }
@@ -55,8 +61,8 @@ export default function ReportView({ report, setReport, error, setError }) {
             <Typography variant="h5">Report</Typography>
 
             {/* Report controls (year/month/currency) */}
-            <Paper sx={{ p: 2 }}>
-                <ReportControls onRun={handleReport} />
+            <Paper sx={{ p: 4 }}>
+                <ReportControls onRun={handleReport} /> {/*we send prop to the ReportControls component that we want to run the handleReport function when the user clicks on the button*/}
             </Paper>
 
             {/* Error alert if exists */}
@@ -67,7 +73,7 @@ export default function ReportView({ report, setReport, error, setError }) {
                 <CostList
                     items={report.costs}
                     reportCurrency={report.currency}
-                    total={report.total}   // Pass the total object from the report
+                    total={report.total}
                 />
             )}
         </Stack>

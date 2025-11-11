@@ -10,10 +10,16 @@ import { Card, CardContent, Stack, MenuItem, TextField, Button } from '@mui/mate
 /* ---------------- Constants ---------------- */
 const YEARS = (() => {
     const y = new Date().getFullYear();
-    return Array.from({ length: 8 }, (_, i) => y - 3 + i);  // Generate 8 years: 3 back + 4 ahead
+
+    // Generate 8 years: 3 back + 4 ahead
+    return Array.from({ length: 8 }, (_, i) => y - 3 + i);
 })();
-const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1); // Months 1–12
-const CURRENCIES = ['USD', 'ILS', 'GBP', 'EURO'];           // Supported currencies
+
+// Months 1–12
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
+
+// Supported currencies
+const CURRENCIES = ['USD', 'ILS', 'GBP', 'EURO'];
 
 /**
  * ReportControls Component
@@ -25,16 +31,19 @@ const CURRENCIES = ['USD', 'ILS', 'GBP', 'EURO'];           // Supported currenc
  */
 export default function ReportControls({ onRun }) {
     /* ---------------- State ---------------- */
-    const now = useMemo(() => new Date(), []);   // Current date
+    // Current date
+    const now = useMemo(() => new Date(), []);
     const [year, setYear] = useState(now.getFullYear());
     const [month, setMonth] = useState(now.getMonth() + 1);
     const [currency, setCurrency] = useState('USD');
 
     /* ---------------- Render ---------------- */
     return (
-        <Card sx={{ mt: 2 }}>
+        <Card sx={{ mt: 2 , width:1000 }}>
             <CardContent>
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+                <Stack direction={{ md: 'row' }}
+                       spacing={4}
+                       alignItems="center">
 
                     {/* Year selector */}
                     <TextField
@@ -78,7 +87,7 @@ export default function ReportControls({ onRun }) {
                     {/* Action button */}
                     <Button
                         variant="contained"
-                        onClick={() => onRun({ year, month, currency })}
+                        onClick={() => onRun({ year, month, currency })} // these info that sent when we clicked on the button "get report"
                     >
                         Get Report
                     </Button>

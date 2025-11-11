@@ -1,79 +1,127 @@
 // AddCostForm.jsx
-// ----------------------------
-// A controlled form component for adding new cost items.
-// Validates inputs (sum, currency, category, description)
-// and stores the item in IndexedDB.
-// ----------------------------
+// ----------------------------------------------------
+// Controlled form component for adding a new cost item.
+// Performs validation and stores the data in IndexedDB
+// using addCost() from idb.module.js.
+// Charts and reports will auto-refresh via subscribeToChanges.
+// ----------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-    Box, Button, Card, CardContent, MenuItem, Stack, TextField, Typography, Snackbar, Alert
-} from '@mui/material';
-import { addCost } from '../services/idb.module';
+    Box,
+    Button,
+    Card,
+    CardContent,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+    Snackbar,
+    Alert,
+} from "@mui/material";
+import { addCost } from "../services/idb.module.js";
 
-// ---------- Constants ----------
-const CURRENCIES = ['USD', 'ILS', 'GBP', 'EURO']; // Supported currencies
-const CATEGORIES = ['Food', 'Car', 'Education', 'Home', 'Health', 'Leisure', 'Other']; // Supported categories
+// ---------------- Constants ----------------
+
+// Supported currencies
+const CURRENCIES = ["USD", "ILS", "GBP", "EURO"];
+
+// Supported categories
+const CATEGORIES = [
+    "Food",
+    "Car",
+    "Education",
+    "Home",
+    "Health",
+    "Leisure",
+    "Other",
+];
+
+// Initial empty form state
+const INITIAL_FORM_STATE = {
+    sum: "",
+    currency: "USD",
+    category: "Food",
+    description: "",
+};
+
+/**
+ * validateForm
+ * ----------------------------------------------------
+ * Validates user inputs before saving.
+ * Returns an error message if invalid, or an empty string if valid.
+ */
+function validateForm(form) {
+    const numericSum = Number(form.sum);
+
+    if (!form.sum || Number.isNaN(numericSum) || numericSum <= 0) {
+        return "Sum must be a positive number";
+    }
+    if (!form.description.trim()) {
+        return "Description is required";
+    }
+    return ""; // valid form
+}
 
 /**
  * AddCostForm Component
- * ----------------------------
- * Renders a form to add new costs.
- * @param {Function} onAdded - Callback after a cost is successfully added.
+ * ----------------------------------------------------
+ * Displays a form for adding new cost entries.
+ * Saves to IndexedDB and triggers automatic chart refresh
+ * through the notifyChange() mechanism.
  */
-export default function AddCostForm({ onAdded }) {
-    /* ---------------- State ---------------- */
-    const [form, setForm] = useState({ sum: '', currency: 'USD', category: 'Food', description: '' });
+export default function AddCostForm() {
+    // ---------------- State variables ----------------
+    const [form, setForm] = useState(INITIAL_FORM_STATE);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [errorMessage, setErrorMessage] = useState("");
     const [success, setSuccess] = useState(false);
 
     /**
      * handleChange
-     * ----------------------------
-     * Updates form state when input fields change.
+     * ----------------------------------------------------
+     * Updates form fields as the user types or selects options.
      */
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((f) => ({ ...f, [name]: value }));
-    };
+    function handleChange(event) {
+        const fieldName = event.target.name;
+        const fieldValue = event.target.value;
+
+        // Create a copy of the current form - we can not change the state directly
+        const updatedForm = {
+            sum: form.sum,
+            currency: form.currency,
+            category: form.category,
+            description: form.description,
+        };
+
+        // Update only the changed field
+        updatedForm[fieldName] = fieldValue;
+
+        // Save back into React state
+        setForm(updatedForm);
+    }
 
     /**
      * handleSubmit
-     * ----------------------------
-     * Validates form inputs and submits new cost to IndexedDB.
-     * Displays success or error feedback.
+     * ----------------------------------------------------
+     * Validates input and saves the cost into IndexedDB.
+     * On success, form resets and a success message appears.
      */
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    async function handleSubmit(event) {
+        event.preventDefault(); // Prevent page refresh
+        setErrorMessage(""); // Clear previous error
 
-        // Validate sum input
-        if (!form.sum || Number.isNaN(Number(form.sum)) || Number(form.sum) <= 0) {
-            setError('Sum must be a positive number');
-            return;
-        }
-
-        // Validate currency
-        if (!CURRENCIES.includes(form.currency)) {
-            setError('Currency must be one of USD, ILS, GBP, EURO');
-            return;
-        }
-
-        // Validate category
-        if (!CATEGORIES.includes(form.category)) {
-            setError('Category is invalid');
-            return;
-        }
-
-        // Validate description (required field)
-        if (!form.description.trim()) {
-            setError('Description is required');
+        // Validate fields
+        const validationError = validateForm(form);
+        if (validationError) {
+            setErrorMessage(validationError);
             return;
         }
 
         setLoading(true);
+
         try {
+            // Save the new cost item in IndexedDB
             await addCost({
                 sum: Number(form.sum),
                 currency: form.currency,
@@ -81,28 +129,31 @@ export default function AddCostForm({ onAdded }) {
                 description: form.description.trim(),
             });
 
-            // Reset form after success
-            setForm({ sum: '', currency: 'USD', category: 'Food', description: '' });
-            onAdded?.();
+            // Reset form after successful save
+            setForm(INITIAL_FORM_STATE);
+
+            // Show success notification
             setSuccess(true);
-        } catch (err) {
-            console.error(err);
-            setError('Failed to add cost, please try again.');
+        } catch (error) {
+            console.error("Error adding cost:", error);
+            setErrorMessage("Failed to add cost, please try again.");
         } finally {
             setLoading(false);
         }
-    };
+    }
 
-    /* ---------------- JSX ---------------- */
+    // ---------------- JSX (UI) ----------------
     return (
         <Card>
             <CardContent>
-                <Typography variant="h6" gutterBottom>Add New Cost</Typography>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+                    Add New Cost
+                </Typography>
 
-                {/* Form fields */}
+                {/* Form Section */}
                 <Box component="form" onSubmit={handleSubmit}>
-                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                        {/* Sum field */}
+                    <Stack direction="row" spacing={3} >
+                        {/* Sum input */}
                         <TextField
                             label="Sum"
                             name="sum"
@@ -122,7 +173,11 @@ export default function AddCostForm({ onAdded }) {
                             value={form.currency}
                             onChange={handleChange}
                         >
-                            {CURRENCIES.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                            {CURRENCIES.map((currency) => (
+                                <MenuItem key={currency} value={currency}>
+                                    {currency}
+                                </MenuItem>
+                            ))}
                         </TextField>
 
                         {/* Category selector */}
@@ -134,10 +189,14 @@ export default function AddCostForm({ onAdded }) {
                             value={form.category}
                             onChange={handleChange}
                         >
-                            {CATEGORIES.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                            {CATEGORIES.map((category) => (
+                                <MenuItem key={category} value={category}>
+                                    {category}
+                                </MenuItem>
+                            ))}
                         </TextField>
 
-                        {/* Description (required) */}
+                        {/* Description input */}
                         <TextField
                             label="Description"
                             name="description"
@@ -150,16 +209,35 @@ export default function AddCostForm({ onAdded }) {
 
                     {/* Submit button */}
                     <Box sx={{ mt: 2 }}>
-                        <Button variant="contained" type="submit" disabled={loading}>Add Cost</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading ? "Saving..." : "Add Cost"}
+                        </Button>
                     </Box>
                 </Box>
 
                 {/* Error message */}
-                {error && <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>}
+                {errorMessage && (
+                    <Typography color="error" sx={{ mt: 2 }}>
+                        {errorMessage}
+                    </Typography>
+                )}
 
                 {/* Success Snackbar */}
-                <Snackbar open={success} autoHideDuration={3000} onClose={() => setSuccess(false)}>
-                    <Alert onClose={() => setSuccess(false)} severity="success" sx={{ width: '100%' }}>
+                <Snackbar
+                    open={success}
+                    autoHideDuration={3000}
+                    onClose={() => setSuccess(false)}
+                >
+                    <Alert
+                        onClose={() => setSuccess(false)}
+                        severity="success"
+                        sx={{ width: "100%" }}
+                    >
                         Cost added successfully!
                     </Alert>
                 </Snackbar>

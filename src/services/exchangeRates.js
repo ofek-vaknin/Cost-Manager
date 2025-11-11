@@ -1,5 +1,4 @@
 // src/services/exchangeRates.js
-
 // ---------- Constants ----------
 /**
  * Key used in localStorage to store the rates URL.

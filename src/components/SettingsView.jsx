@@ -21,12 +21,15 @@ import { fetchRates, setRatesURL, getRatesURL } from '../services/exchangeRates'
 export default function SettingsView() {
 
     /* ---------------- State ---------------- */
-    const [url, setUrl] = useState(getRatesURL())   /* Current URL for exchange rates */
-    const [rates, setRates] = useState(null)        /* Exchange rates data */
-    const [error, setError] = useState(null)        /* Error state */
+    // Current URL for exchange rates
+    const [url, setUrl] = useState(getRatesURL())
+    // Exchange rates data
+    const [rates, setRates] = useState(null)
+    // Error state
+    const [error, setError] = useState(null)
 
     /**
-     * Handle save & test
+     * handleSave
      * ------------------------------------------------------
      * Saves the URL in localStorage and attempts to fetch the rates.
      * If successful, updates the rates state; otherwise sets error.
@@ -35,10 +38,14 @@ export default function SettingsView() {
      */
     const handleSave = async () => {
         try {
-            setRatesURL(url)                        /* Save new URL in localStorage */
-            const data = await fetchRates()         /* Try to fetch rates */
-            setRates(data)                          /* Update state with fetched rates */
-            setError(null)                          /* Clear error */
+            // Save new URL in localStorage
+            setRatesURL(url)
+            // Try to fetch rates
+            const data = await fetchRates()
+            // Update state with fetched rates
+            setRates(data)
+            // Clear error
+            setError(null)
         } catch (err) {
             if (err.message.includes('Invalid exchange rates JSON structure')) {
                 setError(
@@ -54,19 +61,23 @@ export default function SettingsView() {
     }
 
     /**
-     * Handle reset to default API
+     * handleReset
      * ------------------------------------------------------
      * Removes the custom URL from localStorage and reloads the default API.
      *
      * @returns {Promise<void>}
      */
     const handleReset = async () => {
-        localStorage.removeItem("ratesURL")         /* Delete custom URL */
-        const defaultUrl = getRatesURL()            /* Will fallback to default API */
-        setUrl(defaultUrl)                          /* Update input field */
+        // Delete custom URL
+        localStorage.removeItem("ratesURL")
+        // Will fallback to default API
+        const defaultUrl = getRatesURL()
+        // Update input field
+        setUrl(defaultUrl)
 
         try {
-            const data = await fetchRates()         /* Fetch default API */
+            // Fetch default API
+            const data = await fetchRates()
             setRates(data)
             setError(null)
         } catch (err) {

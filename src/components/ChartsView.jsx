@@ -1,10 +1,11 @@
 // ChartsView.jsx
-// ----------------------------
+// ---------------------------------------------------------
 // Displays filters (year, month, currency) and renders
 // two charts: Pie (by category) and Bar (by month).
-// ----------------------------
+// Charts automatically refresh when the IndexedDB changes.
+// ---------------------------------------------------------
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Typography,
     Paper,
@@ -16,13 +17,18 @@ import {
 } from "@mui/material";
 import PieByCategory from "./Charts/PieByCategory.jsx";
 import BarByMonth from "./Charts/BarByMonth.jsx";
-import { getPieData, getBarData } from "../services/idb.module.js";
+import {
+    getPieData,
+    getBarData,
+    subscribeToChanges
+} from "../services/idb.module.js";
 
 // ---------- Constants ----------
+
 // Generate a list of years (3 back + 4 ahead)
 const YEARS = (() => {
-    const y = new Date().getFullYear();
-    return Array.from({ length: 8 }, (_, i) => y - 3 + i);
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 8 }, (_, i) => currentYear - 3 + i);
 })();
 
 // List of months (1–12)
@@ -33,38 +39,61 @@ const CURRENCIES = ["USD", "ILS", "GBP", "EURO"];
 
 /**
  * ChartsView Component
- * ----------------------------
- * Renders a filter section and two charts:
- * - Pie chart: total costs grouped by categories
- * - Bar chart: total costs per month
- *
- * @returns {JSX.Element} - The charts view UI
+ * ---------------------------------------------------------
+ * Shows filters for year, month, and currency.
+ * Displays:
+ *   - Pie chart: total costs grouped by category.
+ *   - Bar chart: total costs per month.
+ * Automatically refreshes when new data is added to IndexedDB.
  */
 export default function ChartsView() {
     /* ---------------- State ---------------- */
     const [year, setYear] = useState(new Date().getFullYear());
     const [month, setMonth] = useState(new Date().getMonth() + 1);
     const [currency, setCurrency] = useState("USD");
+
     const [pieData, setPieData] = useState([]);
     const [barData, setBarData] = useState([]);
 
     /**
-     * handleRun
-     * ----------------------------
-     * Fetches new Pie and Bar data based on the
-     * selected year, month, and currency.
+     * loadCharts
+     * ---------------------------------------------------------
+     * Fetches new Pie and Bar data from IndexedDB
+     * based on the selected filters (year, month, currency).
      */
-    const handleRun = async () => {
+    async function loadCharts() {
         const pie = await getPieData(year, month, currency);
         const bar = await getBarData(year, currency);
         setPieData(pie);
         setBarData(bar);
-    };
+    }
+
+    /**
+     * useEffect - Lifecycle hook
+     * ---------------------------------------------------------
+     * Runs when the component mounts or when the filters change.
+     * Also subscribes to database changes for real-time updates.
+     */
+    useEffect(() => {
+        // 1️⃣ Load initial data when component mounts or filters change
+        loadCharts();
+
+        // 2️⃣ Subscribe to changes in IndexedDB
+        const unsubscribe = subscribeToChanges(() => {
+            console.log("🔁 Database changed – refreshing charts...");
+            loadCharts();
+        });
+
+        // 3️⃣ Cleanup: remove listener when component unmounts
+        return unsubscribe;
+    }, [year, month, currency]);
 
     /* ---------------- JSX ---------------- */
     return (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <Typography variant="h5">Charts</Typography>
+            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                Charts Overview
+            </Typography>
 
             {/* ---------- Filters Section ---------- */}
             <Paper sx={{ p: 2 }}>
@@ -118,8 +147,12 @@ export default function ChartsView() {
                         ))}
                     </TextField>
 
-                    {/* Run Report button */}
-                    <Button variant="contained" onClick={handleRun}>
+                    {/* Manual refresh button (optional) */}
+                    <Button
+                        variant="contained"
+                        onClick={loadCharts}
+                        sx={{ fontWeight: "bold" }}
+                    >
                         Run Report
                     </Button>
                 </Stack>
@@ -127,7 +160,7 @@ export default function ChartsView() {
 
             {/* ---------- Charts Section ---------- */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                {/* Pie chart block */}
+                {/* Pie chart */}
                 <Paper sx={{ flex: 1, minWidth: 500, p: 3, height: 500 }}>
                     <Typography variant="subtitle1" gutterBottom>
                         By Category ({currency})
@@ -135,7 +168,7 @@ export default function ChartsView() {
                     <PieByCategory data={pieData} currency={currency} />
                 </Paper>
 
-                {/* Bar chart block */}
+                {/* Bar chart */}
                 <Paper sx={{ flex: 1, minWidth: 500, p: 3, height: 500 }}>
                     <Typography variant="subtitle1" gutterBottom>
                         By Month ({currency})

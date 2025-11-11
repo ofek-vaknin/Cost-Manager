@@ -11,11 +11,13 @@
 // ------------------------------------------------------
 
 import { fetchRates } from "./exchangeRates";
-import { convert } from "./currency"; // External conversion function
+import { convert } from "./currency";
 
 // ---------- Constants ----------
-const DB_NAME = "costsdb";        /* Default DB name */
-const STORE_NAME = "costs";       /* Object store name */
+/* Default DB name */
+const DB_NAME = "costsdb";
+/* Object store name */
+const STORE_NAME = "costs";
 
 // ---------- Subscribers ----------
 const listeners = new Set();
@@ -80,8 +82,8 @@ export function openCostsDB(databaseName = DB_NAME, databaseVersion = 1) {
  * @returns {Promise<Object>} - Resolves with the inserted cost object.
  */
 export async function addCost(cost) {
-    const db = await openCostsDB();
-    const tx = db.transaction(STORE_NAME, "readwrite");
+    const db = await openCostsDB();// open the database from the fun we crated before
+    const tx = db.transaction(STORE_NAME, "readwrite"); //
     const store = tx.objectStore(STORE_NAME);
 
     const now = new Date();
@@ -98,10 +100,11 @@ export async function addCost(cost) {
     };
 
     return new Promise((resolve, reject) => {
-        const req = store.add(item);
+        const req = store.add(item); //we ask the store to add the item
         req.onsuccess = () => {
-            notifyChange();   /* Trigger subscribers */
-            resolve(item);
+            // Trigger subscribers
+            notifyChange();
+            resolve(item); //the add function returns the item we added
         };
         req.onerror = (e) => reject(e.target.error);
     });
@@ -119,7 +122,7 @@ export async function addCost(cost) {
  *   { year, month, costs: [...], total: { currency, total } }
  */
 export async function getReport(year, month, currency) {
-    const rates = await fetchRates();
+    const rates = await fetchRates(); // fun that fetches the rates from the api
     const db = await openCostsDB();
     const tx = db.transaction(STORE_NAME, "readonly");
     const store = tx.objectStore(STORE_NAME);
@@ -129,13 +132,15 @@ export async function getReport(year, month, currency) {
 
     return new Promise((resolve, reject) => {
         const req = store.openCursor();
-        req.onsuccess = (event) => {
+        req.onsuccess = (event) => { // each time we succeed to get a cursor we get the item
             const cursor = event.target.result;
             if (cursor) {
                 const item = cursor.value;
                 if (item.date.year === year && item.date.month === month) {
-                    costs.push(item); /* Keep original cost */
-                    total += convert(item.sum, item.currency, currency, rates); /* Convert only total */
+                    // Keep original cost
+                    costs.push(item);
+                    // Convert only total
+                    total += convert(item.sum, item.currency, currency, rates);
                 }
                 cursor.continue();
             } else {
@@ -177,11 +182,12 @@ export async function getPieData(year, month, currency) {
                 const item = cursor.value;
                 if (item.date.year === year && item.date.month === month) {
                     const converted = convert(item.sum, item.currency, currency, rates);
-                    grouped[item.category] = (grouped[item.category] || 0) + converted;
+                    grouped[item.category] = (grouped[item.category] || 0) + converted; // grouped= { food:50}
                 }
                 cursor.continue();
             } else {
                 resolve(
+                    // we make an array of objects [{name:food, value:50}] for the pie chart
                     Object.entries(grouped).map(([name, value]) => ({
                         name,
                         value,

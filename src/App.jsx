@@ -33,9 +33,14 @@ import SettingsView from "./components/SettingsView.jsx";
  * @returns {JSX.Element} - The rendered application
  */
 export default function App() {
-    const [view, setView] = useState("add");   /* Current active view */
-    const [report, setReport] = useState(null);/* Last generated report */
-    const [error, setError] = useState("");    /* Error state for report view */
+    /* Current active view */
+    const [view, setView] = useState("add");
+
+    /* Last generated report */
+    const [report, setReport] = useState(null);
+
+    /* Error state for report view */
+    const [error, setError] = useState("");
 
     /**
      * Render the selected view based on current state.
@@ -74,6 +79,7 @@ export default function App() {
                         Cost Manager
                     </Typography>
                     <Stack direction="row" spacing={2}>
+                        {/* Navigation buttons */}
                         <Button color="inherit" onClick={() => setView("add")}>
                             Add
                         </Button>

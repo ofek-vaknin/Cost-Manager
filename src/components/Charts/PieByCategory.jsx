@@ -46,10 +46,14 @@ export default function PieByCategory({ data, currency }) {
             <PieChart>
                 <Pie
                     data={data}
-                    cx="47%"          // Horizontal center
-                    cy="50%"          // Vertical center
-                    outerRadius={100} // Size of pie
-                    dataKey="value"   // Use "value" field for slices
+                    // Horizontal center
+                    cx="47%"
+                    // Vertical center
+                    cy="50%"
+                    // Size of pie
+                    outerRadius={100}
+                    // Use "value" field for slices
+                    dataKey="value"
                     // Label shows category name + formatted value
                     label={({ name, value }) =>
                         `${name}: ${value.toFixed(2)} ${currency}`
@@ -66,10 +70,10 @@ export default function PieByCategory({ data, currency }) {
 
                 {/* Legend for categories */}
                 <Legend
-                verticalAlign="bottom"
-                align="left"
-                wrapperStyle={{ marginLeft: 40 }}
-            />
+                    verticalAlign="bottom"
+                    align="left"
+                    wrapperStyle={{ marginLeft: 40 }}
+                />
             </PieChart>
         </ResponsiveContainer>
     );
