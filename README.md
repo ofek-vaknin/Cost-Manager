@@ -1,12 +1,43 @@
-# React + Vite
+# 💰 Cost Manager App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for tracking and visualizing personal expenses.  
+It allows users to record their costs, generate monthly reports, and view insightful charts — all stored locally in the browser using **IndexedDB**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌟 Overview
 
-## Expanding the ESLint configuration
+**Cost Manager** is a React-based project built as part of an academic course.  
+The system provides an intuitive interface to:
+- Add and manage expenses  
+- Generate reports by **year**, **month**, and **currency**  
+- Visualize data using **Pie** and **Bar** charts  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+All data is stored locally, so your information remains available even after page reloads.
+
+---
+
+## 🚀 Features
+
+- ✅ Add new expenses with sum, category, currency, and description  
+- ✅ Store all data locally in **IndexedDB** (persistent between sessions)  
+- ✅ Generate detailed reports filtered by **year**, **month**, and **currency**  
+- ✅ Automatic **currency conversion** using real-time exchange rates  
+- ✅ Display **Pie** and **Bar** charts for spending visualization  
+- ✅ Save the last generated report using **localStorage**  
+- ✅ Real-time UI updates through a **listener (subscribeToChanges)** system  
+
+---
+
+## ⚙️ Technologies Used
+
+- **React 18** + **Vite**
+- **Material UI (MUI)** – modern UI components  
+- **IndexedDB API** – client-side database  
+- **Recharts** – charts and visualizations  
+- **JavaScript (ES6+)**
+- **LocalStorage** – save last report state  
+
+---
+
+
